@@ -120,7 +120,7 @@
   body.present .controls, body.present .picker, body.present .utilbar,
   body.present .advanced, body.present .hint, body.present .note,
   body.present header.top, body.present .sub{display:none !important}
-  body.present .wrap{max-width:none; width:fit-content; margin:0 auto; padding:8px 10px}
+  body.present .wrap{max-width:none; margin:0 auto; padding:8px 10px}
   body.present .playbar{margin:0 0 8px}
   body.present .exitpresent{display:inline-flex !important}
   body.present #presentBtn{display:none}
@@ -1221,13 +1221,28 @@
   // ---- presentation (fullscreen) mode ----
   var wrapEl=document.querySelector('.wrap');
   function fitPresent(){
-    if(!document.body.classList.contains('present')){ wrapEl.style.zoom=''; return; }
-    wrapEl.style.zoom='1';
-    var w=wrapEl.scrollWidth, h=wrapEl.scrollHeight;
-    if(!w || !h) return;
-    var s = Math.min(window.innerWidth/w, window.innerHeight/h);
-    s = Math.max(1, Math.min(s, 3)); // never shrink; cap the enlargement
-    wrapEl.style.zoom = s;
+    var bw=document.getElementById('boardwrap'), grid=document.getElementById('board');
+    if(!document.body.classList.contains('present')){
+      wrapEl.style.zoom=''; wrapEl.style.width=''; if(bw) bw.style.overflowX=''; return;
+    }
+    // reset to measure natural sizes
+    wrapEl.style.zoom='1'; wrapEl.style.width=''; if(bw) bw.style.overflowX='auto';
+    var boardW = grid ? grid.scrollWidth : 0;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    if(boardW && boardW <= vw - 8){
+      // the board fits across the screen: shrink-wrap and scale everything up to fill
+      if(bw) bw.style.overflowX='visible';
+      wrapEl.style.width='fit-content';
+      var w=wrapEl.scrollWidth, h=wrapEl.scrollHeight;
+      var s=Math.min(vw/Math.max(w,1), vh/Math.max(h,1));
+      s=Math.max(1, Math.min(s,3));
+      wrapEl.style.zoom=s;
+    } else {
+      // wider than the screen: keep it full width so the board scrolls and auto-centers
+      if(bw) bw.style.overflowX='auto';
+      wrapEl.style.width='100%';
+      wrapEl.style.zoom='1';
+    }
   }
   function enterPresent(){
     document.body.classList.add('present');
@@ -1237,14 +1252,15 @@
   }
   function exitPresent(){
     document.body.classList.remove('present');
-    wrapEl.style.zoom='';
+    wrapEl.style.zoom=''; wrapEl.style.width='';
+    var bw=document.getElementById('boardwrap'); if(bw) bw.style.overflowX='';
     if(document.fullscreenElement && document.exitFullscreen){ try{ document.exitFullscreen(); }catch(e){} }
   }
   window.addEventListener('resize', function(){ if(document.body.classList.contains('present')) fitPresent(); });
   document.getElementById('presentBtn').addEventListener('click', enterPresent);
   document.getElementById('exitPresentBtn').addEventListener('click', exitPresent);
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') exitPresent(); });
-  document.addEventListener('fullscreenchange', function(){ if(!document.fullscreenElement){ document.body.classList.remove('present'); wrapEl.style.zoom=''; } });
+  document.addEventListener('fullscreenchange', function(){ if(!document.fullscreenElement){ document.body.classList.remove('present'); wrapEl.style.zoom=''; wrapEl.style.width=''; var b=document.getElementById('boardwrap'); if(b) b.style.overflowX=''; } });
 
   // ---- save / load setups (localStorage; degrades quietly if unavailable) ----
   var STORE_KEY='noteBoardSetups';
