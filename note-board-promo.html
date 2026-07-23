@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Virtual Note Board — preview</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@600;700&family=Nunito+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --blue:#a5c8d4; --teal:#035772; --teal2:#02465b; --ink:#05495d; --muted:#4e7885;
+    --paper:#eef4f7; --line:#bcd6de;
+    --c0:#c0504d; --c1:#d67b3e; --c2:#cba52e; --c3:#5a9367; --c4:#3f7cae;
+    --head:'Roboto Slab', Georgia, serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{font-family:'Nunito Sans', system-ui, sans-serif; -webkit-font-smoothing:antialiased; background:transparent}
+  .card{
+    max-width:1040px; margin:0 auto; background:linear-gradient(135deg,#ffffff 0%, #eaf2f6 100%);
+    border:1px solid var(--line); border-radius:20px; padding:34px 38px;
+    box-shadow:0 14px 40px rgba(3,87,114,.16);
+    display:flex; gap:38px; align-items:center; flex-wrap:wrap;
+  }
+  .left{flex:1 1 380px; min-width:300px}
+  .right{flex:1 1 400px; min-width:320px}
+  .eyebrow{color:var(--teal); font-weight:700; letter-spacing:.16em; text-transform:uppercase; font-size:12px; margin-bottom:8px}
+  h1{font-family:var(--head); color:var(--teal); font-size:40px; line-height:1.05; margin:0 0 12px; font-weight:700}
+  .tag{color:var(--ink); font-size:17px; line-height:1.5; margin:0 0 18px}
+  ul{list-style:none; margin:0 0 24px; padding:0}
+  li{display:flex; gap:11px; align-items:flex-start; color:var(--ink); font-size:15px; line-height:1.45; margin-bottom:11px}
+  li .ck{flex:none; width:22px; height:22px; border-radius:50%; background:var(--teal); color:#fff; font-size:13px; font-weight:700; display:flex; align-items:center; justify-content:center; margin-top:1px}
+  .cta{display:inline-flex; align-items:center; gap:10px; background:var(--teal); color:#fff; text-decoration:none;
+    font-size:17px; font-weight:700; padding:15px 30px; border-radius:12px; box-shadow:0 6px 16px rgba(3,87,114,.28);
+    transition:background .15s, transform .1s}
+  .cta:hover{background:var(--teal2); transform:translateY(-1px)}
+  .cta .arr{font-size:19px}
+  .fine{color:var(--muted); font-size:12.5px; margin-top:12px}
+  .mock{background:#dfeaef; border:1px solid var(--line); border-radius:14px; padding:14px; box-shadow:inset 0 1px 3px rgba(3,87,114,.08)}
+  .mock svg{display:block; width:100%; height:auto}
+  @media (max-width:720px){ h1{font-size:32px} .card{padding:26px 24px} }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="left">
+      <div class="eyebrow">Free Classroom Tool</div>
+      <h1>Virtual Note Board</h1>
+      <p class="tag">Fast, whole-ensemble note recognition &mdash; every part shown in its own key and clef, pulsing right on the beat.</p>
+      <ul>
+        <li><span class="ck">&#10003;</span><span><b>Band &amp; Orchestra.</b> Every instrument transposed and spelled correctly, from first notes to full chromatic range.</span></li>
+        <li><span class="ck">&#10003;</span><span><b>Locked to the beat.</b> Drill to a built-in groove, or tap along to your own music so the class stays together.</span></li>
+        <li><span class="ck">&#10003;</span><span><b>Made for the room.</b> Full-screen for the projector, big color-coded columns, and a clear count-in.</span></li>
+        <li><span class="ck">&#10003;</span><span><b>Ready in seconds.</b> Pick who's in the room, choose a note set, and go &mdash; then save your class setups.</span></li>
+      </ul>
+      <!-- Button links to your live app -->
+      <a class="cta" href="https://bandofthewild.github.io/note-board/" target="_blank" rel="noopener">Open the Note Board <span class="arr">&rarr;</span></a>
+      <div class="fine">Opens in a new tab &middot; works on any classroom computer or Chromebook</div>
+    </div>
+
+    <div class="right">
+      <div class="mock">
+        <svg viewBox="0 0 460 300" role="img" aria-label="Preview of the Note Board interface">
+          <!-- phase pill + status -->
+          <rect x="0" y="0" width="300" height="40" rx="9" fill="#dff0e4" stroke="#4a8f59" stroke-width="1.5"/>
+          <text x="24" y="26" font-family="Nunito Sans, sans-serif" font-size="17" font-weight="800" fill="#357a45">Say It</text>
+          <text x="250" y="28" font-family="Nunito Sans, sans-serif" font-size="22" font-weight="800" fill="#05495d" text-anchor="end">2/4</text>
+          <circle cx="330" cy="20" r="6" fill="#035772"/><circle cx="352" cy="20" r="6" fill="#035772"/>
+          <circle cx="374" cy="20" r="6" fill="#cdd9de"/><circle cx="396" cy="20" r="6" fill="#cdd9de"/>
+          <text x="452" y="25" font-family="Nunito Sans, sans-serif" font-size="12" fill="#4e7885" text-anchor="end">beat</text>
+
+          <!-- column color headers -->
+          <g>
+            <rect x="120" y="54" width="62" height="20" rx="4" fill="var(--c0)"/>
+            <rect x="186" y="54" width="62" height="20" rx="4" fill="var(--c1)"/>
+            <rect x="252" y="54" width="62" height="20" rx="4" fill="var(--c2)"/>
+            <rect x="318" y="54" width="62" height="20" rx="4" fill="var(--c3)"/>
+            <rect x="384" y="54" width="62" height="20" rx="4" fill="var(--c4)"/>
+          </g>
+
+          <!-- active column highlight -->
+          <rect x="318" y="54" width="62" height="230" rx="4" fill="#5a9367" opacity="0.12"/>
+          <rect x="318" y="54" width="62" height="20" rx="4" fill="none" stroke="#035772" stroke-width="2.5"/>
+
+          <!-- treble row -->
+          <text x="8" y="118" font-family="Nunito Sans, sans-serif" font-size="12.5" font-weight="700" fill="#05495d">Fl · Ob</text>
+          <text x="8" y="132" font-family="Nunito Sans, sans-serif" font-size="10" fill="#4e7885">Treble</text>
+          <g stroke="#1c3138" stroke-width="1">
+            <line x1="120" y1="96" x2="452" y2="96"/><line x1="120" y1="106" x2="452" y2="106"/>
+            <line x1="120" y1="116" x2="452" y2="116"/><line x1="120" y1="126" x2="452" y2="126"/>
+            <line x1="120" y1="136" x2="452" y2="136"/>
+          </g>
+          <!-- whole notes (open ovals) treble -->
+          <g fill="none" stroke="#111" stroke-width="2.4">
+            <ellipse cx="151" cy="126" rx="8" ry="6"/>
+            <ellipse cx="217" cy="121" rx="8" ry="6"/>
+            <ellipse cx="283" cy="116" rx="8" ry="6"/>
+            <ellipse cx="349" cy="106" rx="8" ry="6"/>
+            <ellipse cx="415" cy="101" rx="8" ry="6"/>
+          </g>
+
+          <!-- bass row -->
+          <text x="8" y="240" font-family="Nunito Sans, sans-serif" font-size="12.5" font-weight="700" fill="#05495d">Tbn · Tuba</text>
+          <text x="8" y="254" font-family="Nunito Sans, sans-serif" font-size="10" fill="#4e7885">Bass</text>
+          <g stroke="#1c3138" stroke-width="1">
+            <line x1="120" y1="218" x2="452" y2="218"/><line x1="120" y1="228" x2="452" y2="228"/>
+            <line x1="120" y1="238" x2="452" y2="238"/><line x1="120" y1="248" x2="452" y2="248"/>
+            <line x1="120" y1="258" x2="452" y2="258"/>
+          </g>
+          <g fill="none" stroke="#111" stroke-width="2.4">
+            <ellipse cx="151" cy="248" rx="8" ry="6"/>
+            <ellipse cx="217" cy="243" rx="8" ry="6"/>
+            <ellipse cx="283" cy="238" rx="8" ry="6"/>
+            <ellipse cx="349" cy="228" rx="8" ry="6"/>
+            <ellipse cx="415" cy="223" rx="8" ry="6"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
