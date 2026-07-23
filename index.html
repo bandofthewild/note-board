@@ -456,6 +456,9 @@
 
   // ---- board build ----
   var CELL_W = 94, CELL_H = 164, LABEL_W = 150, CLEF_W = 62, SC = 1.5, STAVE_Y = (CELL_H/SC)/2 - 20;
+  var PRES = 1;                                        // present-mode scale (renders the board bigger)
+  var CWx=CELL_W, CLEFx=CLEF_W, LWx=LABEL_W, SCx=SC;   // effective, PRES-scaled sizes
+  function applyPres(){ CWx=CELL_W*PRES; CLEFx=CLEF_W*PRES; LWx=LABEL_W*PRES; SCx=SC*PRES; }
   var STAVE_OPTS = {space_above_staff_ln:0, space_below_staff_ln:0};
   var board = document.getElementById('board');
 
@@ -512,17 +515,18 @@
     // ~2.9 drawing units per semitone from the middle line, + notehead/margin
     var half=Math.max(38, maxDev*2.9 + 14);
     half=Math.min(half, 92);
-    var h=Math.round(2*half*SC);
-    var staveY=(h/SC)/2 - 20;
-    if(state.revealNames){ var pad=34; h += pad; staveY += pad/SC; } // clear space up top for the name
+    var h=Math.round(2*half*SCx);
+    var staveY=(h/SCx)/2 - 20;
+    if(state.revealNames){ var pad=34; h += pad; staveY += pad/SCx; } // clear space up top for the name
     return { h:h, staveY:staveY };
   }
 
-  function buildBoard(){
+  function renderBoard(){
+    applyPres();
     shown = currentCols().slice().sort(function(a,b){return a-b;});
     board.innerHTML = '';
     cellsByCol = {}; headerByCol = {}; colWrapByCol = {};
-    board.style.gridTemplateColumns = LABEL_W + 'px ' + CLEF_W + 'px repeat(' + shown.length + ',' + CELL_W + 'px)';
+    board.style.gridTemplateColumns = LWx + 'px ' + CLEFx + 'px repeat(' + shown.length + ',' + CWx + 'px)';
 
     // header row
     var spacer = document.createElement('div'); spacer.className='hdr-spacer'; spacer.style.gridColumn='1 / span 2'; board.appendChild(spacer);
@@ -579,7 +583,20 @@
       });
     });
     refreshFocusUI();
-    if(document.body.classList.contains('present') && typeof fitPresent==='function') fitPresent();
+  }
+
+  // Public entry: render, then (in full-screen) grow the board to fill the vertical space.
+  function buildBoard(){
+    renderBoard();
+    if(!document.body.classList.contains('present')) return;
+    if(!board || !board.offsetHeight) return;
+    var pb=document.querySelector('.playbar'), st=document.getElementById('statusbar');
+    var chrome=(pb?pb.offsetHeight:0) + (st?st.offsetHeight:0) + 46;
+    var avail=window.innerHeight - chrome;
+    var naturalH = board.offsetHeight / PRES;         // height the board would have at PRES=1
+    var s = avail / Math.max(naturalH, 1);
+    s = Math.max(1, Math.min(s, 2.6));                 // never shrink; cap the enlargement
+    if(Math.abs(s - PRES) > 0.03){ PRES = s; renderBoard(); }  // re-render once at the new scale
   }
 
   function mkCtx(container, w, h){
@@ -587,13 +604,13 @@
     var r = new VF.Renderer(container, VF.Renderer.Backends.SVG);
     r.resize(w, h);
     var ctx = r.getContext();
-    ctx.scale(SC, SC);
+    ctx.scale(SCx, SCx);
     return ctx;
   }
   function renderClef(container, row, g){
     try {
-      var ctx = mkCtx(container, CLEF_W, g.h);
-      var stave = new VF.Stave(2, g.staveY, CLEF_W/SC - 4, STAVE_OPTS);
+      var ctx = mkCtx(container, CLEFx, g.h);
+      var stave = new VF.Stave(2, g.staveY, CLEFx/SCx - 4, STAVE_OPTS);
       stave.addClef(row.clef);
       stave.setContext(ctx).draw();
     } catch(err){ container.innerHTML=''; console.warn('clef render failed', err); }
@@ -603,8 +620,8 @@
     catch(err){ container.innerHTML=''; console.warn('cell render failed', err); }
   }
   function renderNoteInner(container, row, concertMidi, g){
-    var ctx = mkCtx(container, CELL_W, g.h);
-    var stave = new VF.Stave(2, g.staveY, CELL_W/SC - 4, STAVE_OPTS);
+    var ctx = mkCtx(container, CWx, g.h);
+    var stave = new VF.Stave(2, g.staveY, CWx/SCx - 4, STAVE_OPTS);
     stave.setContext(ctx).draw();
     var tr=effTr(row), sp=effSp(row);
     var midis = {};
@@ -902,7 +919,7 @@
     var hr = h.getBoundingClientRect();
     var delta = (hr.left - wr.left) - (wr.width/2 - hr.width/2);
     // keep the active column clear of the pinned label/clef area on the left
-    var leftGuard = LABEL_W + CLEF_W;
+    var leftGuard = LWx + CLEFx;
     var target = wrap.scrollLeft + delta;
     var minVisible = wrap.scrollLeft + leftGuard;
     if(hr.left < wr.left + leftGuard) target = wrap.scrollLeft + (hr.left - wr.left) - leftGuard - 8;
@@ -1220,47 +1237,31 @@
 
   // ---- presentation (fullscreen) mode ----
   var wrapEl=document.querySelector('.wrap');
-  function fitPresent(){
-    var bw=document.getElementById('boardwrap'), grid=document.getElementById('board');
-    if(!document.body.classList.contains('present')){
-      wrapEl.style.zoom=''; wrapEl.style.width=''; if(bw) bw.style.overflowX=''; return;
-    }
-    // reset to measure natural sizes
-    wrapEl.style.zoom='1'; wrapEl.style.width=''; if(bw) bw.style.overflowX='auto';
-    var boardW = grid ? grid.scrollWidth : 0;
-    var vw = window.innerWidth, vh = window.innerHeight;
-    if(boardW && boardW <= vw - 8){
-      // the board fits across the screen: shrink-wrap and scale everything up to fill
-      if(bw) bw.style.overflowX='visible';
-      wrapEl.style.width='fit-content';
-      var w=wrapEl.scrollWidth, h=wrapEl.scrollHeight;
-      var s=Math.min(vw/Math.max(w,1), vh/Math.max(h,1));
-      s=Math.max(1, Math.min(s,3));
-      wrapEl.style.zoom=s;
-    } else {
-      // wider than the screen: keep it full width so the board scrolls and auto-centers
-      if(bw) bw.style.overflowX='auto';
-      wrapEl.style.width='100%';
-      wrapEl.style.zoom='1';
-    }
-  }
+  var presTimer=null;
+  function refitPresent(){ buildBoard(); } // buildBoard recomputes PRES to fill the height
   function enterPresent(){
     document.body.classList.add('present');
     var el=document.documentElement;
     if(el.requestFullscreen){ try{ el.requestFullscreen(); }catch(e){} }
-    requestAnimationFrame(function(){ requestAnimationFrame(fitPresent); });
+    // let the layout settle (chrome hidden, fullscreen viewport) before measuring
+    requestAnimationFrame(function(){ requestAnimationFrame(refitPresent); });
+    setTimeout(refitPresent, 250);
   }
   function exitPresent(){
+    var wasPresent=document.body.classList.contains('present');
     document.body.classList.remove('present');
     wrapEl.style.zoom=''; wrapEl.style.width='';
-    var bw=document.getElementById('boardwrap'); if(bw) bw.style.overflowX='';
+    if(wasPresent && PRES!==1){ PRES=1; renderBoard(); } // back to natural size
     if(document.fullscreenElement && document.exitFullscreen){ try{ document.exitFullscreen(); }catch(e){} }
   }
-  window.addEventListener('resize', function(){ if(document.body.classList.contains('present')) fitPresent(); });
+  window.addEventListener('resize', function(){
+    if(!document.body.classList.contains('present')) return;
+    clearTimeout(presTimer); presTimer=setTimeout(refitPresent, 120);
+  });
   document.getElementById('presentBtn').addEventListener('click', enterPresent);
   document.getElementById('exitPresentBtn').addEventListener('click', exitPresent);
   document.addEventListener('keydown', function(e){ if(e.key==='Escape') exitPresent(); });
-  document.addEventListener('fullscreenchange', function(){ if(!document.fullscreenElement){ document.body.classList.remove('present'); wrapEl.style.zoom=''; wrapEl.style.width=''; var b=document.getElementById('boardwrap'); if(b) b.style.overflowX=''; } });
+  document.addEventListener('fullscreenchange', function(){ if(!document.fullscreenElement && document.body.classList.contains('present')) exitPresent(); });
 
   // ---- save / load setups (localStorage; degrades quietly if unavailable) ----
   var STORE_KEY='noteBoardSetups';
