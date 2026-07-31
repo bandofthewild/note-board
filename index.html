@@ -105,6 +105,18 @@
   .advanced label input{accent-color:var(--brass); width:15px; height:15px}
   .advanced .advdesc{margin:0 0 4px 24px; font-size:12px; color:var(--muted); line-height:1.5}
   .advanced .advdesc b{color:var(--light); font-weight:600}
+  .filebtn{display:inline-flex; align-items:center; margin-top:4px; cursor:pointer}
+  .filebtn input{position:absolute; width:0; height:0; opacity:0}
+  .filebtn span{background:var(--brass); color:#fff; border-radius:9px; padding:9px 16px; font-size:13px; font-weight:600}
+  .filebtn:hover span{background:var(--brass2)}
+  .songctl{display:flex; flex-direction:column; gap:7px; margin-top:6px}
+  .songctl[hidden]{display:none}
+  .songrow{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  .songrow .songlab{font-size:11px; color:var(--muted); min-width:62px}
+  .songrow b{font-size:14px; color:var(--brass); font-weight:700}
+  .songbadge{display:inline-flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--brass);
+    color:var(--brass); border-radius:9px; padding:6px 12px; font-size:12px; font-weight:600; max-width:260px}
+  .songbadge span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
   .advanced .seg{display:flex; width:100%}
   .advanced .seg button{flex:1 1 0; text-align:center}
   .present{background:var(--panel2); color:var(--light); border:1px solid var(--line); border-radius:10px; padding:12px 18px; font-size:14px; font-weight:600; cursor:pointer}
@@ -207,7 +219,10 @@
         <div>
           <h3>Use Your Own Music</h3>
           <ul>
-            <li>Set <b>Groove</b> to <b>Off</b> and start your own track.</li>
+            <li><b>Load a song (best option):</b> under <b>Advanced Options &rarr; Your Own Music</b>, pick an audio file. The app finds its tempo and plays it locked to the board &mdash; no tapping and no drift.</li>
+            <li>If the board lands on the wrong beat of the bar, tap <b>Beat 1</b> (or the spacebar) right on the downbeat. It waits one full bar, then comes in aligned &mdash; the tempo never changes. Set <b>Beats/bar</b> to 3 for a waltz, which also switches the tempo buttons to <b>&divide;3 / &times;3</b> (one beat per measure vs. all three).</li>
+            <li><b>Save Song</b> keeps a song together with its tempo, meter, your Beat 1 and every millisecond nudge &mdash; and any later tweak is stored automatically. Next time it loads instantly, already lined up exactly as you left it.</li>
+            <li>Or set <b>Groove</b> to <b>Off</b> and start your own track from another device.</li>
             <li><b>Tap the beat four times</b> (or press the spacebar) to set the tempo. Four taps works best &mdash; too few or too many can throw off the reading.</li>
             <li>If the class drifts, tap another <b>four&#8209;count</b> along with the song and the board re&#8209;syncs on the next downbeat.</li>
           </ul>
@@ -280,9 +295,50 @@
     <div class="sec">
       <div class="sechead"><h4>Challenge &amp; Display</h4></div>
       <label><input type="checkbox" id="speedToggle" /> Speed trainer</label>
-      <p class="advdesc">Nudges the tempo up 2 bpm every turn for a build-up challenge. Works with the built-in grooves (not with the "Off" play-along mode).</p>
+      <p class="advdesc">Nudges the tempo up 2 bpm every turn for a build-up challenge. Works with the built-in grooves &mdash; it switches off automatically while a loaded song is running, since that has to hold one steady tempo.</p>
       <label><input type="checkbox" id="concertToggle" /> Concert-pitch display</label>
       <p class="advdesc">Shows every line at concert pitch instead of each instrument's transposed reading &mdash; handy for talking about concert pitch across the whole room.</p>
+    </div>
+    <div class="sec">
+      <div class="sechead"><h4>Your Own Music</h4></div>
+      <label class="filebtn">
+        <input type="file" id="songFile" accept="audio/*" />
+        <span>Load a Song&hellip;</span>
+      </label>
+      <p class="advdesc" id="songStatus">Load an audio file and the app finds its tempo and downbeat, then plays it locked to the board &mdash; no tapping, no drift. Works best on music with a clear beat.</p>
+      <div class="songrow">
+        <span class="songlab">Saved</span>
+        <select class="pitchsel" id="songSaved"><option value="">Saved songs&hellip;</option></select>
+        <button class="minibtn" id="songSave">Save Song</button>
+        <button class="minibtn" id="songDel">Delete</button>
+      </div>
+      <div class="songctl" id="songCtl" hidden>
+        <div class="songrow">
+          <b id="songBpm">&mdash;</b>
+          <button class="minibtn" id="songHalf" title="Detected tempo is double the real one">&divide;2</button>
+          <button class="minibtn" id="songDouble" title="Detected tempo is half the real one">&times;2</button>
+        </div>
+        <div class="songrow">
+          <span class="songlab">Beats/bar</span>
+          <div class="seg" id="songMeterSeg">
+            <button data-bl="4" class="sel">4</button>
+            <button data-bl="3">3 (waltz)</button>
+          </div>
+        </div>
+        <div class="songrow">
+          <span class="songlab">Downbeat</span>
+          <button class="minibtn" id="songBeatOne" title="While the song plays, tap this on beat 1">Tap Beat 1</button>
+          <button class="minibtn" id="songBack" title="Shift the board one beat earlier">&larr;</button>
+          <button class="minibtn" id="songFwd" title="Shift the board one beat later">&rarr;</button>
+          <button class="minibtn" id="songNudgeB" title="Nudge 20 ms earlier">-20ms</button>
+          <button class="minibtn" id="songNudgeF" title="Nudge 20 ms later">+20ms</button>
+        </div>
+        <div class="songrow">
+          <span class="songlab">Volume</span>
+          <input type="range" id="songVol" min="0" max="100" value="80" style="width:110px" />
+          <button class="minibtn" id="songClear">Remove</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -302,7 +358,7 @@
       </div>
     </div>
     <div class="grp">
-      <span class="lab">Tempo</span>
+      <span class="lab" id="tempoLab">Tempo</span>
       <div style="display:flex;align-items:center;gap:10px">
         <input type="range" id="tempo" min="40" max="220" value="96" />
         <span class="tempoval"><span id="bpm">96</span> bpm</span>
@@ -316,6 +372,10 @@
         <button data-x="sayplay">Say + Play</button>
         <button data-x="play">Play Only</button>
       </div>
+    </div>
+    <div class="grp" id="songBadgeGrp" hidden>
+      <span class="lab">Song</span>
+      <div class="songbadge">&#9835; <span id="songBadgeName">&mdash;</span></div>
     </div>
     <div class="grp playbtn">
       <span class="lab">&nbsp;</span>
@@ -909,7 +969,7 @@
     if(state.steps==='play') return ['prep','play'];
     return ['prep','say'];
   }
-  function cycleLen(){ return phaseList().length*4; }
+  function cycleLen(){ return phaseList().length*beatsPerPhase(); }
 
   function scrollToCol(ci){
     var wrap = document.getElementById('boardwrap');
@@ -937,10 +997,11 @@
     }
     if(!state.running) return;
     var phases = phaseList();
-    var cl = phases.length*4;
+    var bpp = beatsPerPhase();
+    var cl = phases.length*bpp;
     var pos = state.cyclePos % cl;
     if(pos===0){
-      if(state.speedTrainer && state.cyclePos>0 && state.sound!=='none'){
+      if(state.speedTrainer && state.cyclePos>0 && state.sound!=='none' && !song.ready){
         setBpm(Math.min(220, state.bpm + 2)); // nudge up each cycle (generated grooves only)
       }
       state.currentCol = pickNext();
@@ -948,24 +1009,24 @@
       showNow(state.currentCol);
       scrollToCol(shown.indexOf(state.currentCol));
     }
-    var phaseIdx = Math.floor(pos/4);
-    var beatInPhase = pos % 4;
+    var phaseIdx = Math.floor(pos/bpp);
+    var beatInPhase = pos % bpp;
     var phase = phases[phaseIdx];
     var ci = shown.indexOf(state.currentCol);
 
     setColClass(ci);
     if(phase==='prep'){
-      var litRows = Math.ceil((beatInPhase+1)/4 * NUM_ROWS);
+      var litRows = Math.ceil((beatInPhase+1)/bpp * NUM_ROWS);
       prepFill(ci, litRows);
-      setPhase('prep', 'Get Ready', String(4 - beatInPhase)); // 4,3,2,1
+      setPhase('prep', 'Get Ready', String(bpp - beatInPhase)); // 4,3,2,1 (or 3,2,1)
     } else if(phase==='say'){
       fullLight(ci); flashCol(ci);
-      setPhase('say', 'Say It', (beatInPhase+1) + '/4');
-      showNames(ci, state.revealNames && beatInPhase>=2); // last two beats
+      setPhase('say', 'Say It', (beatInPhase+1) + '/' + bpp);
+      showNames(ci, state.revealNames && beatInPhase>=bpp-2); // last two beats
       if(state.refPitch && audioCtx) playRef(state.currentCol, Math.max((beatTime||audioCtx.currentTime) - LAT, audioCtx.currentTime), 60/state.bpm);
     } else {
       fullLight(ci); flashCol(ci);
-      setPhase('play', 'Play It', (beatInPhase+1) + '/4');
+      setPhase('play', 'Play It', (beatInPhase+1) + '/' + bpp);
       if(state.refPitch && audioCtx) playRef(state.currentCol, Math.max((beatTime||audioCtx.currentTime) - LAT, audioCtx.currentTime), 60/state.bpm);
     }
     setDots(beatInPhase+1);
@@ -1116,8 +1177,12 @@
   });
 
   var tempo=document.getElementById('tempo');
+  // A song-locked grid may sit outside the slider's range (a waltz counted in 3
+  // can run past 220; counted in 1 it can fall below 40), so widen the bounds then.
+  function bpmMin(){ return (song && song.ready) ? 30 : 40; }
+  function bpmMax(){ return (song && song.ready) ? 330 : 220; }
   function setBpm(v){
-    v=Math.max(40, Math.min(220, v));
+    v=Math.max(bpmMin(), Math.min(bpmMax(), v));
     state.bpm=v;                                  // keep the precise (fractional) value for the clock
     tempo.value=Math.round(v);
     document.getElementById('bpm').textContent=Math.round(v);
@@ -1136,6 +1201,7 @@
   }
   function tapTempo(){
     ensureAudio();
+    if(song.ready){ setSongBeatOne(); return; }
     var now=performance.now(), na=audioCtx.currentTime;
     if(tapTimes.length && now - tapTimes[tapTimes.length-1] > 2000){ tapTimes=[]; } // a pause starts a fresh count-off
     if(tapTimes.length===0) anchorAudio = na; // first tap of a group = assumed beat 1
@@ -1158,6 +1224,522 @@
     setTimeout(function(){ tapBtn.classList.remove('tapping'); }, 110);
   }
   tapBtn.addEventListener('click', tapTempo);
+
+  // ---- your own music: load a file, find its beat, play it locked to the board ----
+  var song = { name:null, buffer:null, file:null, bpm:null, beatSec:0, barBeats:0, barLen:4, ready:false, src:null, gain:null, playing:false, envLow:null, fps:0 };
+  var songStatus=document.getElementById('songStatus'), songCtl=document.getElementById('songCtl');
+  var songBpmEl=document.getElementById('songBpm'), songBadgeGrp=document.getElementById('songBadgeGrp');
+  var songBadgeName=document.getElementById('songBadgeName'), songVol=document.getElementById('songVol');
+
+  function songBarLen(){ return (song.ready && song.barLen===3) ? 3 : 4; }
+  function songTempoFactor(){ return songBarLen()===3 ? 3 : 2; }
+  function beatsPerPhase(){ return songBarLen(); }
+  function songSetStatus(txt){ if(songStatus) songStatus.innerHTML=txt; }
+  function songFirstDownbeat(){
+    // seconds into the file of the first downbeat we should start the board on
+    var p=60/song.bpm, bar=songNormBar(), t=song.beatSec + song.barBeats*p;
+    while(t < 0) t += bar*p;
+    return t;
+  }
+  function songRefreshUI(){
+    if(!song.ready){
+      if(songCtl) songCtl.hidden=true;
+      if(songBadgeGrp) songBadgeGrp.hidden=true;
+      return;
+    }
+    if(songCtl) songCtl.hidden=false;
+    if(songBadgeGrp) songBadgeGrp.hidden=false;
+    if(songBpmEl) songBpmEl.textContent=song.bpm.toFixed(1)+' bpm';
+    if(songBadgeName) songBadgeName.textContent=song.name || 'song';
+    songLockControls(true);
+    var f=songTempoFactor();
+    var hb=document.getElementById('songHalf'), db=document.getElementById('songDouble');
+    if(hb){
+      hb.innerHTML='&divide;'+f;
+      hb.title = f===3 ? 'Count one beat per measure instead of three (\u00f73)'
+                       : 'Detected tempo is double the real one (\u00f72)';
+    }
+    if(db){
+      db.innerHTML='&times;'+f;
+      db.title = f===3 ? 'Count all three beats in each measure (\u00d73)'
+                       : 'Detected tempo is half the real one (\u00d72)';
+    }
+    var ms=document.getElementById('songMeterSeg');
+    if(ms) [].slice.call(ms.children).forEach(function(x){ x.classList.toggle('sel', (+x.getAttribute('data-bl'))===songBarLen()); });
+    setBpm(song.bpm);
+  }
+  function clearSong(){
+    stopSong();
+    song={ name:null, buffer:null, file:null, bpm:null, beatSec:0, barBeats:0, barLen:4, ready:false, src:null, gain:null, playing:false, envLow:null, fps:0 };
+    songRefreshUI();
+    songLockControls(false);
+    songMarkSaved(false);
+    setBpm(Math.max(40, Math.min(220, state.bpm||96)));
+    songSetStatus('Load an audio file and the app finds its tempo and downbeat, then plays it locked to the board &mdash; no tapping, no drift. Works best on music with a clear beat.');
+  }
+
+  // Percussion-emphasized onset envelope, built with OfflineAudioContext filters
+  function buildOnsetEnvelope(buffer){
+    var sr=22050, len=Math.max(1, Math.ceil(buffer.duration*sr));
+    var OC=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+    if(!OC) return Promise.reject(new Error('no OfflineAudioContext'));
+    var oc=new OC(2, len, sr);
+    var src=oc.createBufferSource(); src.buffer=buffer;
+    var lp=oc.createBiquadFilter(); lp.type='lowpass'; lp.frequency.value=180;      // kick
+    var bp=oc.createBiquadFilter(); bp.type='bandpass'; bp.frequency.value=3200; bp.Q.value=0.7; // snare/hat
+    var mb=oc.createBiquadFilter(); mb.type='bandpass'; mb.frequency.value=900; mb.Q.value=0.6;  // melodic attacks
+    var mg=oc.createGain(); mg.gain.value=0.9;
+    var merge=oc.createChannelMerger(2);
+    src.connect(lp); lp.connect(merge, 0, 0);   // channel 0 = bass band (bar phase)
+    src.connect(bp); bp.connect(merge, 0, 1);   // channel 1 = mid + high (tempo)
+    src.connect(mb); mb.connect(mg); mg.connect(merge, 0, 1);
+    merge.connect(oc.destination);
+    src.start(0);
+    return oc.startRendering().then(function(rb){
+      var lo=rb.getChannelData(0), hi=rb.getChannelData(1);
+      var hop=256, frames=Math.floor(Math.min(lo.length, hi.length)/hop);
+      var eLo=new Float64Array(frames), eAll=new Float64Array(frames);
+      for(var i=0;i<frames;i++){
+        var sL=0, sH=0, off=i*hop;
+        for(var j=0;j<hop;j++){ var a=lo[off+j], b=hi[off+j]; sL+=a*a; sH+=b*b; }
+        eLo[i]=Math.log(1+ sL/hop*400);
+        eAll[i]=Math.log(1+ (sL*1.5+sH)/hop*400);
+      }
+      var env=new Float64Array(frames), envLow=new Float64Array(frames);
+      for(var i=1;i<frames;i++){
+        env[i]=Math.max(0, eAll[i]-eAll[i-1]);
+        envLow[i]=Math.max(0, eLo[i]-eLo[i-1]);
+      }
+      return { env:env, envLow:envLow, fps:sr/hop };
+    });
+  }
+  function envInterp(e,x){
+    if(x<=0) return e[0]||0;
+    var i=Math.floor(x); if(i>=e.length-1) return e[e.length-1]||0;
+    var f=x-i; return e[i]*(1-f)+e[i+1]*f;
+  }
+  function detectTempoFromEnvelope(env, fps){
+    var n=env.length; if(n<40) return null;
+    var mean=0; for(var i=0;i<n;i++) mean+=env[i]; mean/=n;
+    var e=new Float64Array(n);
+    for(var i=0;i<n;i++) e[i]=Math.max(0, env[i]-mean);
+    var best=null;
+    for(var bpm=40; bpm<=220.001; bpm+=0.25){
+      var period=fps*60/bpm; if(period<2) continue;
+      var nBeats=Math.floor((n-1)/period); if(nBeats<8) continue;
+      var bestP=null;
+      for(var p=0;p<24;p++){
+        var ph=p*period/24, s=0;
+        for(var k=0;k<nBeats;k++) s+=envInterp(e, ph+k*period);
+        s/=nBeats;
+        if(!bestP || s>bestP.s) bestP={s:s, ph:ph};
+      }
+      var prior=Math.exp(-0.5*Math.pow(Math.log(bpm/120)/Math.LN2/0.9, 2)); // favor musical tempos
+      var score=bestP.s*prior;
+      if(!best || score>best.score) best={score:score, raw:bestP.s, bpm:bpm, phaseFrames:bestP.ph};
+    }
+    if(!best) return null;
+    var period=fps*60/best.bpm, nB=Math.floor((n-1)/period), fine=null;
+    for(var p=0;p<200;p++){
+      var ph=p*period/200, s=0;
+      for(var k=0;k<nB;k++) s+=envInterp(e, ph+k*period);
+      if(!fine || s>fine.s) fine={s:s, ph:ph};
+    }
+    best.phaseFrames=fine.ph;
+    best.beatSec=best.phaseFrames/fps;
+    return best;
+  }
+  // Bar phase from the bass band: the kick usually lands on beat 1.
+  function pickBarPhase(envLow, fps, bpm, phaseFrames, barLen){
+    var bl=(barLen===3)?3:4;
+    if(!envLow || !envLow.length) return 0;
+    var period=fps*60/bpm, n=envLow.length, nB=Math.floor((n-1-phaseFrames)/period);
+    if(nB<8) return 0;
+    var sums=[], cnt=[], b;
+    for(b=0;b<bl;b++){ sums.push(0); cnt.push(0); }
+    for(var k=0;k<nB;k++){
+      var v=envInterp(envLow, phaseFrames+k*period);
+      sums[k%bl]+=v; cnt[k%bl]++;
+    }
+    var bar=0, bestv=-1;
+    for(b=0;b<bl;b++){
+      var avg=cnt[b]?sums[b]/cnt[b]:0;
+      if(avg>bestv){ bestv=avg; bar=b; }
+    }
+    // downbeats sit at beat indices k where k % barLen === bar
+    return ((bar%bl)+bl)%bl;
+  }
+  // Keep barBeats inside the current bar length. A stale value (e.g. 3 while in 3/4)
+  // used to make the realign search loop forever and freeze the page.
+  function songNormBar(){
+    var bl=songBarLen();
+    song.barBeats=(((song.barBeats||0)%bl)+bl)%bl;
+    return bl;
+  }
+
+  function loadSongFile(file){
+    if(!file) return;
+    ensureAudio();
+    songSetStatus('Reading &ldquo;'+file.name+'&rdquo;&hellip;');
+    var reader=new FileReader();
+    reader.onerror=function(){ songSetStatus('Could not read that file. Try an mp3, m4a, wav, or ogg.'); };
+    reader.onload=function(){
+      songSetStatus('Analyzing the beat&hellip; (a few seconds)');
+      var done=function(buf){
+        song.buffer=buf; song.name=file.name; song.file=file;
+        song.envLow=null; song.fps=0;
+        buildOnsetEnvelope(buf).then(function(r){
+          var res=detectTempoFromEnvelope(r.env, r.fps);
+          if(!res){ songSetStatus('Could not find a steady beat in that track. You can still use Tap.'); return; }
+          song.bpm=res.bpm; song.beatSec=res.beatSec;
+          song.barLen=song.barLen||4;
+          song.envLow=r.envLow; song.fps=r.fps;      // kept so the meter can be changed later
+          song.barBeats=pickBarPhase(r.envLow, r.fps, res.bpm, res.phaseFrames, song.barLen);
+          song.ready=true;
+          songNormBar();
+          // a song is playing, so silence the built-in groove by default
+          state.sound='none';
+          var seg=document.getElementById('soundSeg');
+          if(seg) [].slice.call(seg.children).forEach(function(x){ x.classList.toggle('sel', x.getAttribute('data-s')==='none'); });
+          if(tempo) tempo.disabled=true;
+          songRefreshUI();
+          songMarkSaved(false);
+          songSetStatus('Found <b>'+res.bpm.toFixed(1)+' bpm</b> in &ldquo;'+file.name+'&rdquo;. Press Play &mdash; then if the board is on the wrong beat of the bar, tap <b>Beat 1</b> (or the spacebar) right on the music&rsquo;s downbeat. That moves only the bar, never the tempo. Use &divide;2 or &times;2 if the tempo came out double or half.');
+        }).catch(function(err){
+          console.warn('analysis failed', err);
+          songSetStatus('Beat analysis is not supported in this browser. You can still use Tap.');
+        });
+      };
+      try {
+        var p=audioCtx.decodeAudioData(reader.result, done, function(){
+          songSetStatus('That file could not be decoded. Try an mp3, m4a, wav, or ogg (not a DRM-protected download).');
+        });
+        if(p && p.then) p.then(done).catch(function(){
+          songSetStatus('That file could not be decoded. Try an mp3, m4a, wav, or ogg (not a DRM-protected download).');
+        });
+      } catch(e){
+        songSetStatus('That file could not be decoded. Try an mp3, m4a, wav, or ogg.');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }
+
+  function startSongAt(when, offsetSec){
+    if(!song.ready || !audioCtx) return;
+    stopSong();
+    try {
+      song.gain=audioCtx.createGain();
+      song.gain.gain.value=(songVol? (+songVol.value)/100 : 0.8);
+      song.gain.connect(audioCtx.destination);
+      song.src=audioCtx.createBufferSource();
+      song.src.buffer=song.buffer;
+      song.src.connect(song.gain);
+      song.src.start(when, Math.max(0, offsetSec||0));
+      song.startAudio=when; song.startOffset=Math.max(0, offsetSec||0);
+      song.playing=true;
+    } catch(e){ console.warn('song start failed', e); }
+  }
+  function stopSong(){
+    if(song.src){ try{ song.src.stop(); }catch(e){} try{ song.src.disconnect(); }catch(e){} song.src=null; }
+    if(song.gain){ try{ song.gain.disconnect(); }catch(e){} song.gain=null; }
+    song.playing=false; song.startAudio=null;
+  }
+
+  // Tap once on the music's beat 1. Snaps to the nearest detected beat, so the
+  // tempo and beat grid are untouched — only the bar alignment moves.
+  function setSongBeatOne(){
+    if(!song.ready) return;
+    if(!song.playing || song.startAudio==null){
+      songSetStatus('Press <b>Play</b> first, then tap <b>Beat 1</b> right on the downbeat.');
+      return;
+    }
+    var period=60/song.bpm, off=song.startOffset||0, bar=songNormBar();
+    var now=audioCtx.currentTime;
+    var pos=(now - song.startAudio) + off - LAT;            // where we are in the file
+    var k=Math.round((pos - song.beatSec)/period);           // nearest beat on the grid
+    song.barBeats=((k%bar)+bar)%bar;
+    // Always come in a full bar later, so you get the whole count to reorient.
+    var kNext=k+bar;
+    var tAt=function(idx){ return song.startAudio - off + song.beatSec + idx*period; };
+    while(tAt(kNext) - now < 0.12) kNext+=bar;
+    songComeIn(tAt(kNext));
+    songTouchSaved();
+    songSetStatus('Beat 1 set. The board comes in one full bar later, tempo unchanged. Tap again any time to re-orient.');
+    tapBtn.classList.add('tapping');
+    setTimeout(function(){ tapBtn.classList.remove('tapping'); }, 140);
+  }
+  // Hard-reset the drill onto a specific audio-clock time
+  function songComeIn(t){
+    nextStepTime=t; STEP=0; vq=[];
+    state.cyclePos=0; state.countIn=0; countInSteps=0;
+    state.currentCol=null; state.bag=[]; state.lastCol=null; state.focusToggle=false;
+    clearHighlights(); clearNames(); showNow(null);
+    setPhase('countin', 'Ready', '\u2014');
+  }
+
+  var songFileEl=document.getElementById('songFile');
+  if(songFileEl) songFileEl.addEventListener('change', function(){ if(this.files && this.files[0]) loadSongFile(this.files[0]); });
+  // Rebuild the bass envelope if we don't have one (e.g. a song loaded from storage)
+  function songEnsureEnvelope(){
+    if(song.envLow && song.fps) return Promise.resolve(true);
+    if(!song.buffer) return Promise.resolve(false);
+    return buildOnsetEnvelope(song.buffer).then(function(r){
+      song.envLow=r.envLow; song.fps=r.fps; return true;
+    }).catch(function(){ return false; });
+  }
+  // Re-derive which beat is "1" for the current bar length
+  function songRepickDownbeat(){
+    return songEnsureEnvelope().then(function(ok){
+      if(ok && song.bpm){
+        var pf=song.beatSec*song.fps;
+        song.barBeats=pickBarPhase(song.envLow, song.fps, song.bpm, pf, songBarLen());
+      }
+      songNormBar();
+      return ok;
+    });
+  }
+  function songRealign(){
+    if(!(state.running && song.playing && song.startAudio!=null)) return;
+    var period=60/song.bpm, off=song.startOffset||0, bl=songNormBar();
+    var now=audioCtx.currentTime;
+    var pos=(now - song.startAudio) + off;
+    var kNext=Math.ceil((pos + 0.12 - song.beatSec)/period);
+    for(var guard=0; guard<bl && ((kNext%bl)+bl)%bl !== song.barBeats; guard++) kNext++;
+    songComeIn(song.startAudio - off + song.beatSec + kNext*period);
+  }
+  // ÷2/×2 in duple, ÷3/×3 in a waltz (one beat per measure vs all three).
+  function songScaleTempo(up){
+    if(!song.ready) return;
+    var f=songTempoFactor(), bl=songBarLen();
+    var next = up ? song.bpm*f : song.bpm/f;
+    if(next < bpmMin() || next > bpmMax()){
+      songSetStatus('&times;'+f+' / &divide;'+f+' from <b>'+song.bpm.toFixed(1)+' bpm</b> would land at '+
+        next.toFixed(1)+' bpm, outside the usable range ('+bpmMin()+'&ndash;'+bpmMax()+
+        '). Try the other button, or switch <b>Beats/bar</b>.');
+      return;
+    }
+    // keep the beat we call "1" on the new grid
+    song.barBeats = up ? (((song.barBeats*f)%bl)+bl)%bl
+                       : ((Math.round(song.barBeats/f)%bl)+bl)%bl;
+    song.bpm=next;
+    songRefreshUI();
+    songRealign();
+    songTouchSaved();
+    songSetStatus('Tempo now <b>'+song.bpm.toFixed(1)+' bpm</b>'+
+      (bl===3 ? (up ? ' &mdash; three beats per measure.' : ' &mdash; one beat per measure.') : '.')+
+      ' The song keeps playing; the board re-locks on the next downbeat.');
+  }
+  var sHalf=document.getElementById('songHalf'), sDbl=document.getElementById('songDouble');
+  if(sHalf) sHalf.addEventListener('click', function(){ songScaleTempo(false); });
+  if(sDbl) sDbl.addEventListener('click', function(){ songScaleTempo(true); });
+  // ---- saved songs (IndexedDB: holds the audio plus its analysis + your Beat 1) ----
+  var SONG_DB='noteBoardSongs', SONG_STORE='songs';
+  function idbOpen(){
+    return new Promise(function(res,rej){
+      if(!window.indexedDB) return rej(new Error('no indexedDB'));
+      var req=indexedDB.open(SONG_DB,1);
+      req.onupgradeneeded=function(){
+        var db=req.result;
+        if(!db.objectStoreNames.contains(SONG_STORE)) db.createObjectStore(SONG_STORE,{keyPath:'name'});
+      };
+      req.onsuccess=function(){ res(req.result); };
+      req.onerror=function(){ rej(req.error); };
+    });
+  }
+  function idbTx(mode, fn){
+    return idbOpen().then(function(db){
+      return new Promise(function(res,rej){
+        var tx=db.transaction(SONG_STORE, mode), st=tx.objectStore(SONG_STORE), out=null;
+        try{ out=fn(st); }catch(e){ rej(e); return; }
+        tx.oncomplete=function(){ res(out && out.result!==undefined ? out.result : out); };
+        tx.onerror=function(){ rej(tx.error); };
+      });
+    });
+  }
+  function songsList(){ return idbTx('readonly', function(st){ return st.getAll(); }); }
+  function songsPut(rec){ return idbTx('readwrite', function(st){ return st.put(rec); }); }
+  function songsGet(name){ return idbTx('readonly', function(st){ return st.get(name); }); }
+  function songsDel(name){ return idbTx('readwrite', function(st){ return st.delete(name); }); }
+
+  var songSavedSel=document.getElementById('songSaved');
+  function refreshSavedSongs(selName){
+    if(!songSavedSel) return;
+    songsList().then(function(list){
+      songSavedSel.innerHTML='<option value="">Saved songs\u2026</option>';
+      (list||[]).sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); }).forEach(function(r){
+        var o=document.createElement('option');
+        o.value=r.name; o.textContent=r.name+'  ('+Math.round(r.bpm)+' bpm)';
+        songSavedSel.appendChild(o);
+      });
+      if(selName) songSavedSel.value=selName;
+    }).catch(function(){ /* storage unavailable: leave the picker empty */ });
+  }
+  function blobToArrayBuffer(blob){
+    if(blob.arrayBuffer) return blob.arrayBuffer();
+    return new Promise(function(res,rej){
+      var fr=new FileReader();
+      fr.onload=function(){ res(fr.result); };
+      fr.onerror=function(){ rej(fr.error); };
+      fr.readAsArrayBuffer(blob);
+    });
+  }
+  function decodeBuffer(arrBuf){
+    return new Promise(function(res,rej){
+      var p=audioCtx.decodeAudioData(arrBuf, res, rej);
+      if(p && p.then) p.then(res).catch(rej);
+    });
+  }
+  var songSaveBtn=document.getElementById('songSave'), songDelBtn=document.getElementById('songDel');
+  function songMarkSaved(isSaved){
+    if(!songSaveBtn) return;
+    songSaveBtn.textContent = isSaved ? 'Saved \u2713' : 'Save Song';
+    songSaveBtn.title = isSaved ? 'This song is saved. Later tweaks are stored automatically.'
+                                : 'Store this song with its tempo, meter, Beat 1 and nudges';
+  }
+  // Once a song is saved, keep its stored settings in step with any later tweak.
+  var songSaveTimer=null;
+  function songTouchSaved(){
+    if(!song.ready || !song.name) return;
+    clearTimeout(songSaveTimer);
+    songSaveTimer=setTimeout(function(){
+      songsGet(song.name).then(function(rec){
+        if(!rec) return;                       // never saved: leave it alone
+        rec.bpm=song.bpm; rec.beatSec=song.beatSec;
+        rec.barBeats=song.barBeats; rec.barLen=songBarLen();
+        rec.vol=songVol ? +songVol.value : (rec.vol!=null?rec.vol:80);
+        rec.savedAt=Date.now();
+        return songsPut(rec).then(function(){
+          songMarkSaved(true);
+          refreshSavedSongs(songSavedSel ? songSavedSel.value : '');
+        });
+      }).catch(function(){});
+    }, 500);
+  }
+  if(songSaveBtn) songSaveBtn.addEventListener('click', function(){
+    if(!song.ready || !song.file){ songSetStatus('Load a song first, line up <b>Beat 1</b>, then save it.'); return; }
+    songsPut({
+      name: song.name, blob: song.file, bpm: song.bpm, beatSec: song.beatSec,
+      barBeats: song.barBeats, barLen: songBarLen(),
+      vol: songVol ? +songVol.value : 80, savedAt: Date.now()
+    }).then(function(){
+      refreshSavedSongs(song.name);
+      songMarkSaved(true);
+      songSetStatus('Saved &ldquo;'+song.name+'&rdquo; with its tempo, meter, your Beat 1 and every millisecond nudge. '+
+        'Any further tweaks are remembered automatically &mdash; next time it loads instantly, already lined up.');
+    }).catch(function(err){
+      console.warn('song save failed', err);
+      songSetStatus('Could not save that song (storage may be full or blocked). It still works for this session.');
+    });
+  });
+  if(songSavedSel) songSavedSel.addEventListener('change', function(){
+    var name=this.value; if(!name) return;
+    ensureAudio();
+    songSetStatus('Loading &ldquo;'+name+'&rdquo;&hellip;');
+    songsGet(name).then(function(rec){
+      if(!rec || !rec.blob) throw new Error('missing');
+      return blobToArrayBuffer(rec.blob).then(decodeBuffer).then(function(buf){
+        if(state.running) stop();
+        song.buffer=buf; song.file=rec.blob; song.name=rec.name;
+        song.envLow=null; song.fps=0;
+        song.bpm=rec.bpm; song.beatSec=rec.beatSec;
+        song.barBeats=rec.barBeats||0; song.barLen=rec.barLen||4;
+        song.ready=true;
+        songNormBar();
+        if(songVol && rec.vol!=null) songVol.value=rec.vol;
+        state.sound='none';
+        var seg=document.getElementById('soundSeg');
+        if(seg) [].slice.call(seg.children).forEach(function(x){ x.classList.toggle('sel', x.getAttribute('data-s')==='none'); });
+        songRefreshUI();
+        songMarkSaved(true);
+        songSetStatus('Loaded &ldquo;'+rec.name+'&rdquo; at <b>'+rec.bpm.toFixed(1)+' bpm</b> with your saved meter, Beat 1 and nudges. Press Play.');
+      });
+    }).catch(function(err){
+      console.warn('song load failed', err);
+      songSetStatus('Could not load that saved song. It may need to be added again.');
+    });
+  });
+  if(songDelBtn) songDelBtn.addEventListener('click', function(){
+    var name=songSavedSel? songSavedSel.value : '';
+    if(!name){ songSetStatus('Pick a saved song first, then Delete.'); return; }
+    if(!confirm('Delete saved song "'+name+'"?')) return;
+    songsDel(name).then(function(){ refreshSavedSongs(''); songSetStatus('Deleted &ldquo;'+name+'&rdquo;.'); })
+      .catch(function(){ songSetStatus('Could not delete that song.'); });
+  });
+  refreshSavedSongs('');
+  // Browsers block IndexedDB on local file:// pages, so saving only works once hosted.
+  if(location.protocol==='file:'){
+    var noSave='Saving songs needs the hosted (https) version \u2014 browsers block this storage when the page is opened as a local file.';
+    [['songSave',noSave],['songDel',noSave],['songSaved',noSave]].forEach(function(pair){
+      var el=document.getElementById(pair[0]);
+      if(el){ el.disabled=true; el.title=pair[1]; el.style.opacity=0.5; }
+    });
+  }
+
+  var songMeterSeg=document.getElementById('songMeterSeg');
+  if(songMeterSeg) songMeterSeg.addEventListener('click', function(e){
+    var b=e.target.closest('button'); if(!b) return;
+    [].slice.call(this.children).forEach(function(x){ x.classList.toggle('sel', x===b); });
+    song.barLen=+b.getAttribute('data-bl')||4;
+    songNormBar();
+    songRefreshUI();
+    songSetStatus('Re-checking the downbeat for '+songBarLen()+' beats per bar&hellip;');
+    songRepickDownbeat().then(function(){
+      songRefreshUI();
+      songRealign();
+      var bl=songBarLen();
+      var msg='Now grouping in <b>'+bl+' beats per bar</b>, downbeat re-checked. '+
+        'The pulse itself doesn&rsquo;t change with the meter &mdash; only the grouping &mdash; so the tempo stays at <b>'+
+        song.bpm.toFixed(1)+' bpm</b>. ';
+      if(bl===3 && song.bpm<80) msg+='That reads as one beat per measure, so press <b>&times;3</b> to count all three. ';
+      else if(bl===4 && song.bpm>200) msg+='That is fast for 4 &mdash; try <b>&divide;2</b>. ';
+      msg+='If beat 1 still lands wrong, tap <b>Beat 1</b>.';
+      songTouchSaved();
+      songSetStatus(msg);
+    });
+  });
+  function songLockControls(on){
+    var sp=document.getElementById('speedToggle');
+    if(sp){
+      sp.disabled=!!on;
+      if(on) sp.checked=false, state.speedTrainer=false;
+      var lab=sp.closest('label'); if(lab) lab.style.opacity = on ? 0.45 : '';
+    }
+    if(tempo){
+      tempo.disabled=!!on;
+      tempo.min = on ? 30 : 40;
+      tempo.max = on ? 330 : 220;
+      tempo.title = on ? 'Tempo is set by the loaded song. Use \u00f7 / \u00d7 in Your Own Music, or Remove the song.' : '';
+      tempo.style.opacity = on ? 0.5 : '';
+    }
+    var tl=document.getElementById('tempoLab');
+    if(tl) tl.textContent = on ? 'Tempo (from song)' : 'Tempo';
+    if(tapBtn){
+      tapBtn.textContent = on ? 'Beat 1' : 'Tap';
+      tapBtn.title = on ? 'While the song plays, tap on beat 1 (or press the spacebar) to line up the downbeat'
+                        : 'Tap the beat, or press the spacebar';
+    }
+  }
+
+  var sB1=document.getElementById('songBeatOne');
+
+  if(sB1) sB1.addEventListener('click', setSongBeatOne);
+  function songShiftBar(delta){
+    if(!song.ready) return;
+    var bl=songBarLen();
+    song.barBeats=((song.barBeats+delta)%bl+bl)%bl;
+    songRealign();
+    songTouchSaved();
+  }
+  var sBack=document.getElementById('songBack'), sFwd=document.getElementById('songFwd');
+  if(sBack) sBack.addEventListener('click', function(){ songShiftBar(-1); });
+  if(sFwd) sFwd.addEventListener('click', function(){ songShiftBar(1); });
+  var sNB=document.getElementById('songNudgeB'), sNF=document.getElementById('songNudgeF');
+  if(sNB) sNB.addEventListener('click', function(){ if(!song.ready) return; song.beatSec-=0.02; songRealign(); songTouchSaved(); });
+  if(sNF) sNF.addEventListener('click', function(){ if(!song.ready) return; song.beatSec+=0.02; songRealign(); songTouchSaved(); });
+  if(songVol) songVol.addEventListener('input', function(){ if(song.gain) song.gain.gain.value=(+this.value)/100; songTouchSaved(); });
+  var sClear=document.getElementById('songClear');
+  if(sClear) sClear.addEventListener('click', function(){ if(state.running) stop(); clearSong(); });
+
   document.addEventListener('keydown', function(e){
     if(e.code==='Space' || e.key===' '){
       var tag=(e.target&&e.target.tagName)||'';
@@ -1210,7 +1792,18 @@
     STEP=0; vq=[];
 
     var recentTap = tapTimes.length>=2 && (performance.now() - tapTimes[tapTimes.length-1] < 3000) && lastTapAudio!=null;
-    if(recentTap){
+    if(song.ready){
+      // A loaded song owns the clock. Come in on its first downbeat with a full
+      // count-in measure, then a full Get Ready measure, so the drill's first
+      // "Say It" lands squarely on beat 1 of the next bar.
+      setBpm(song.bpm);
+      var bar=songNormBar();
+      var t0 = audioCtx.currentTime + 0.3;
+      startSongAt(t0, 0);
+      nextStepTime = t0 + songFirstDownbeat();
+      state.countIn = bar; countInSteps = bar*4;
+      setPhase('countin', 'Ready', '\u2014');
+    } else if(recentTap){
       // Come in on the next beat aligned to the tap count-off; no click lead-in.
       var beatDur = 60/state.bpm;
       nextStepTime = lastTapAudio + Math.ceil((audioCtx.currentTime + 0.1 - lastTapAudio)/beatDur)*beatDur;
@@ -1226,6 +1819,7 @@
   }
   function stop(){
     state.running=false; state.countIn=0; resyncArmed=false; pendingBpm=null;
+    stopSong();
     if(schedId) clearTimeout(schedId);
     if(rafId) cancelAnimationFrame(rafId);
     vq=[];
