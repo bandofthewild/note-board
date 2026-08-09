@@ -34,14 +34,10 @@
   .status{display:flex; align-items:center; gap:20px; flex-wrap:wrap;
     background:var(--panel); border:1px solid var(--line); border-radius:14px;
     padding:14px 18px; margin-bottom:16px}
-  .now{display:flex; align-items:center; gap:14px; min-width:190px}
-  .now .swatch{width:34px; height:34px; border-radius:8px; background:#cdd; box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
-  .now .concert{font-size:13px; color:var(--muted)}
-  .now .concert b{display:block; font-size:22px; color:var(--light); font-weight:600; line-height:1.1}
   .phase{font-size:16px; font-weight:600; min-width:150px}
   .phase small{display:block; color:var(--muted); font-weight:400; font-size:12px}
   .status{display:flex; align-items:center; gap:20px; flex-wrap:wrap; background:var(--panel); border:1px solid var(--line); border-radius:14px 14px 0 0; border-bottom:0; padding:12px 18px; margin-bottom:0}
-  .phasebox{flex:1 1 320px; display:flex; align-items:center; justify-content:center; gap:20px; padding:10px 22px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:background .1s, border-color .1s}
+  .phasebox{flex:1 1 420px; display:flex; align-items:center; justify-content:center; gap:26px; padding:12px 24px; border-radius:12px; border:1px solid var(--line); background:var(--panel2); transition:background .1s, border-color .1s}
   .phaselabel{font-size:23px; font-weight:700; letter-spacing:.01em; color:var(--muted)}
   .phasecount{font-size:40px; font-weight:800; font-variant-numeric:tabular-nums; line-height:1; color:var(--light)}
   .phasebox.prep{background:rgba(3,87,114,.10); border-color:var(--brass)}
@@ -62,6 +58,7 @@
   .controls{display:flex; gap:22px; flex-wrap:wrap; align-items:flex-end; margin-bottom:18px}
   .playbar{display:flex; gap:26px; flex-wrap:wrap; align-items:flex-end; margin:6px 0 14px}
   .grp{display:flex; flex-direction:column; gap:7px}
+  .grp[hidden]{display:none}   /* author rules beat the browser's [hidden] default */
   .grp .lab{font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--muted)}
   .seg{display:inline-flex; border:1px solid var(--line); border-radius:10px; overflow:hidden}
   .seg button{background:var(--panel2); color:var(--light); border:0; padding:9px 15px; font-size:13px; cursor:pointer}
@@ -114,13 +111,39 @@
   .songrow{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
   .songrow .songlab{font-size:11px; color:var(--muted); min-width:62px}
   .songrow b{font-size:14px; color:var(--brass); font-weight:700}
-  .songbadge{display:inline-flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--brass);
-    color:var(--brass); border-radius:9px; padding:6px 12px; font-size:12px; font-weight:600; max-width:260px}
-  .songbadge span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  /* ---- Your Own Music: promoted panel (doc 1.1, 1.6, 1.7, 1.8) ---- */
+  .playbarGroup{display:block}
+  .musicbtn{background:var(--panel2); color:var(--brass); border:1px solid var(--brass); border-radius:10px;
+    padding:12px 18px; font-size:14px; font-weight:700; cursor:pointer; white-space:nowrap}
+  .musicbtn:hover{background:var(--brass); color:#fff}
+  .musicbtn.on{background:var(--brass); color:#fff}
+  .musicbtn.compact{padding:9px 15px; font-size:13px; font-weight:600}
+  .songpanel{flex:1 1 100%; background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px 18px; margin:0 0 14px; display:flex; flex-direction:column; gap:8px}
+  .songpanel[hidden]{display:none}
+  .songhead{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+  .songhead h4{margin:0; font-size:11px; text-transform:uppercase; letter-spacing:.12em; color:var(--brass); font-weight:600}
+  .songdesc{margin:0 0 2px; font-size:12px; color:var(--muted); line-height:1.5; max-width:640px}
+  .songdesc b{color:var(--light); font-weight:600}
+  .songbadge{display:flex; align-items:center; gap:6px; background:var(--panel2); border:1px solid var(--brass);
+    color:var(--brass); border-radius:9px; padding:7px 12px; font-size:12px; font-weight:600;
+    width:100%; min-height:34px; overflow:hidden; white-space:nowrap}
+  .songbadge .songbadgetext{display:inline-block; white-space:nowrap}
+  .songbadge.scroll .songbadgetext{animation-name:songScroll; animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite}
+  @keyframes songScroll{
+    0%,15%{transform:translateX(0)}
+    50%,85%{transform:translateX(var(--scrollx,0))}
+    100%{transform:translateX(0)}
+  }
+  #songBadgeGrp{flex:1 1 220px; min-width:0}
   .advanced .seg{display:flex; width:100%}
   .advanced .seg button{flex:1 1 0; text-align:center}
-  .present{background:var(--panel2); color:var(--light); border:1px solid var(--line); border-radius:10px; padding:12px 18px; font-size:14px; font-weight:600; cursor:pointer}
-  .present:hover{border-color:var(--brass); color:var(--brass)}
+  /* Named .presentbtn, not .present: enterPresent() puts `present` on <body>, so a bare
+     .present rule would style the whole page in full-screen (cursor, padding, background). */
+  .presentbtn{background:var(--panel2); color:var(--light); border:1px solid var(--line); border-radius:10px; padding:12px 18px; font-size:14px; font-weight:600; cursor:pointer}
+  .presentbtn:hover{border-color:var(--brass); color:var(--brass)}
+  body.present{overflow:hidden}   /* backstop: full-screen overflow clips instead of scrolling */
 
   .nmlabel{position:absolute; top:2px; left:50%; transform:translateX(-50%); min-width:26px; text-align:center;
     font-size:23px; font-weight:800; color:#1a1205; background:rgba(255,255,255,.82); border-radius:6px;
@@ -132,8 +155,15 @@
   body.present .controls, body.present .picker, body.present .utilbar,
   body.present .advanced, body.present .hint, body.present .note,
   body.present header.top, body.present .sub{display:none !important}
-  body.present .wrap{max-width:none; margin:0 auto; padding:8px 10px}
+  body.present .wrap{max-width:none; margin:0; padding:8px 10px;
+    display:flex; flex-direction:column; height:100vh; height:100dvh}
+  body.present .playbarGroup{flex:0 0 auto}
+  body.present .status{flex:0 0 auto}
+  body.present .boardwrap{flex:1 1 auto; min-height:0; overflow:auto}  /* min-height:0 lets it actually shrink */
   body.present .playbar{margin:0 0 8px}
+  body.present .playbarGroup{display:flex; flex-wrap:wrap; gap:18px; align-items:flex-end}
+  body.present .playbarGroup > .playbar{display:contents}
+  body.present .songpanel{display:none !important}
   body.present .exitpresent{display:inline-flex !important}
   body.present #presentBtn{display:none}
   .exitpresent{display:none}
@@ -203,6 +233,41 @@
   </header>
   <p class="sub">Same pitch down each column, transposed and spelled per instrument. Pick a set, hit play, and the board pulses through the notes in time.</p>
 
+  <div class="modal" id="songHelpModal" hidden>
+    <div class="modalbox">
+      <button class="modalx" id="songHelpClose" aria-label="Close">&#10005;</button>
+      <h2>Using Your Own Music</h2>
+      <div class="tourcols">
+        <div>
+          <h3>Loading A Track</h3>
+          <ul>
+            <li>Click <b>Load a Song</b> and pick an audio file from this computer. Nothing is uploaded &mdash; it is analyzed right here.</li>
+            <li>The app finds the tempo and downbeat, then plays the track while the board rides the same clock, so they <b>cannot drift apart</b>.</li>
+            <li>Works best on a clean recording with a clear beat. Soft orchestral or MIDI tracks are harder to read.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>If It Reads Wrong</h3>
+          <ul>
+            <li>Tempo at half or double speed? Use <b>&divide;</b> or <b>&times;</b>. For a waltz set <b>Beats/bar</b> to 3 first, which switches those to &divide;3 / &times;3.</li>
+            <li>Board on the wrong beat of the bar? Press Play and tap <b>Beat 1</b> (or the spacebar) right on the downbeat &mdash; it comes in one full bar later, tempo untouched.</li>
+            <li>Slightly ahead or behind? Nudge with <b>&plusmn;20ms</b>.</li>
+            <li><b>Save Song</b> remembers all of it, including later tweaks.</li>
+          </ul>
+        </div>
+        <div>
+          <h3>Music From Elsewhere</h3>
+          <ul>
+            <li>Playing from a phone, a stream, or a live accompanist? Set <b>Groove</b> to <b>Off</b> and tap the beat by hand &mdash; <b>four taps in a row</b> sets the tempo.</li>
+            <li>Be aware this path <b>will drift</b> over a few minutes, because the app cannot hear that audio. Tap another four-count to re-sync whenever it slips.</li>
+            <li>Loading the actual file is the better option whenever you have it.</li>
+          </ul>
+        </div>
+      </div>
+      <button class="go" id="songHelpGo">Got It</button>
+    </div>
+  </div>
+
   <div class="modal" id="helpModal" hidden>
     <div class="modalbox">
       <button class="modalx" id="helpClose" aria-label="Close">&#10005;</button>
@@ -211,7 +276,7 @@
         <div>
           <h3>Get Going</h3>
           <ul>
-            <li>Pick an <b>Ensemble</b> and a <b>Note Set</b>, then press <b>Play</b>.</li>
+            <li>Pick an <b>Ensemble</b>, a <b>Note Set</b> and a <b>Groove</b>, then press <b>Play</b>.</li>
             <li>Each turn the column pulses top&#8209;to&#8209;bottom (<b>Get Ready</b>, 4&#8209;3&#8209;2&#8209;1), students <b>say</b> the note name, then optionally <b>play</b> it.</li>
             <li>Click a colored column header to pin a <b>&#9733; Focus Note</b> &mdash; it gets drilled every other turn.</li>
           </ul>
@@ -219,12 +284,8 @@
         <div>
           <h3>Use Your Own Music</h3>
           <ul>
-            <li><b>Load a song (best option):</b> under <b>Advanced Options &rarr; Your Own Music</b>, pick an audio file. The app finds its tempo and plays it locked to the board &mdash; no tapping and no drift.</li>
-            <li>If the board lands on the wrong beat of the bar, tap <b>Beat 1</b> (or the spacebar) right on the downbeat. It waits one full bar, then comes in aligned &mdash; the tempo never changes. Set <b>Beats/bar</b> to 3 for a waltz, which also switches the tempo buttons to <b>&divide;3 / &times;3</b> (one beat per measure vs. all three).</li>
-            <li><b>Save Song</b> keeps a song together with its tempo, meter, your Beat 1 and every millisecond nudge &mdash; and any later tweak is stored automatically. Next time it loads instantly, already lined up exactly as you left it.</li>
-            <li>Or set <b>Groove</b> to <b>Off</b> and start your own track from another device.</li>
-            <li><b>Tap the beat four times</b> (or press the spacebar) to set the tempo. Four taps works best &mdash; too few or too many can throw off the reading.</li>
-            <li>If the class drifts, tap another <b>four&#8209;count</b> along with the song and the board re&#8209;syncs on the next downbeat.</li>
+            <li>Click <b>&#9835; Your Own Music</b> next to Groove and load an audio file. The app finds its tempo and plays it locked to the board &mdash; no tapping, no drift.</li>
+            <li>That panel opens with its own short guide, and keeps a <b>&#9432; How This Works</b> button for corrections, waltzes, and saving songs.</li>
           </ul>
         </div>
         <div>
@@ -261,6 +322,10 @@
     <div class="grp">
       <span class="lab">Chromatics</span>
       <label class="chk"><input type="checkbox" id="chromToggle" /> Add in-between notes</label>
+    </div>
+    <div class="grp">
+      <span class="lab">Your Own Music</span>
+      <button class="musicbtn compact" id="songJump" title="Load a song and lock the board to its beat">&#9835; Load a Song&hellip;</button>
     </div>
   </div>
 
@@ -299,13 +364,40 @@
       <label><input type="checkbox" id="concertToggle" /> Concert-pitch display</label>
       <p class="advdesc">Shows every line at concert pitch instead of each instrument's transposed reading &mdash; handy for talking about concert pitch across the whole room.</p>
     </div>
-    <div class="sec">
-      <div class="sechead"><h4>Your Own Music</h4></div>
+  </div>
+
+  <p class="hint">Click a colored header to <b>pin a focus note</b> (&#9733;) &mdash; it gets drilled every other turn while the rest of the set fills the gaps. A row shows both octaves when its members read in different registers (e.g. trombone + tuba), and notes past an instrument's range are hidden automatically.</p>
+
+  <div class="playbarGroup">
+  <div class="playbar">
+    <div class="grp">
+      <span class="lab">Groove</span>
+      <div class="seg" id="soundSeg">
+        <button data-s="rock" class="sel">Rock</button>
+        <button data-s="funk">Funk</button>
+        <button data-s="pop">Pop</button>
+        <button data-s="latin">Latin</button>
+        <button data-s="marching">March</button>
+        <button data-s="metronome">Click</button>
+        <button data-s="none">Off</button>
+      </div>
+    </div>
+    <div class="grp">
+      <span class="lab">&nbsp;</span>
+      <button class="musicbtn" id="songToggle" title="Load a song and lock the board to its beat">&#9835; Your Own Music &#9662;</button>
+    </div>
+  </div>
+
+  <div class="songpanel" id="songPanel" hidden>
+    <div class="songhead">
+      <h4>&#9835; Your Own Music</h4>
+      <button class="minibtn" id="songHelpBtn" title="How this works">&#9432; How This Works</button>
+    </div>
       <label class="filebtn">
         <input type="file" id="songFile" accept="audio/*" />
         <span>Load a Song&hellip;</span>
       </label>
-      <p class="advdesc" id="songStatus">Load an audio file and the app finds its tempo and downbeat, then plays it locked to the board &mdash; no tapping, no drift. Works best on music with a clear beat.</p>
+      <p class="songdesc" id="songStatus">Load an audio file and the app finds its tempo and downbeat, then plays it locked to the board &mdash; no tapping, no drift. Works best on music with a clear beat.</p>
       <div class="songrow">
         <span class="songlab">Saved</span>
         <select class="pitchsel" id="songSaved"><option value="">Saved songs&hellip;</option></select>
@@ -339,30 +431,15 @@
           <button class="minibtn" id="songClear">Remove</button>
         </div>
       </div>
-    </div>
   </div>
 
-  <p class="hint">Click a colored header to <b>pin a focus note</b> (&#9733;) &mdash; it gets drilled every other turn while the rest of the set fills the gaps. A row shows both octaves when its members read in different registers (e.g. trombone + tuba), and notes past an instrument's range are hidden automatically.</p>
-
   <div class="playbar">
-    <div class="grp">
-      <span class="lab">Groove</span>
-      <div class="seg" id="soundSeg">
-        <button data-s="rock" class="sel">Rock</button>
-        <button data-s="funk">Funk</button>
-        <button data-s="pop">Pop</button>
-        <button data-s="latin">Latin</button>
-        <button data-s="marching">March</button>
-        <button data-s="metronome">Click</button>
-        <button data-s="none">Off</button>
-      </div>
-    </div>
     <div class="grp">
       <span class="lab" id="tempoLab">Tempo</span>
       <div style="display:flex;align-items:center;gap:10px">
         <input type="range" id="tempo" min="40" max="220" value="96" />
         <span class="tempoval"><span id="bpm">96</span> bpm</span>
-        <button class="tapbtn" id="tapBtn" title="Tap the beat, or press the spacebar">Tap</button>
+        <button class="tapbtn" id="tapBtn" title="Tap the beat four times in a row (or press the spacebar) to set the tempo">Tap</button>
       </div>
     </div>
     <div class="grp">
@@ -375,23 +452,20 @@
     </div>
     <div class="grp" id="songBadgeGrp" hidden>
       <span class="lab">Song</span>
-      <div class="songbadge">&#9835; <span id="songBadgeName">&mdash;</span></div>
+      <div class="songbadge">&#9835; <span class="songbadgetext" id="songBadgeName">&mdash;</span></div>
     </div>
     <div class="grp playbtn">
       <span class="lab">&nbsp;</span>
       <div style="display:flex;gap:10px">
         <button class="go" id="go">&#9654; Play</button>
-        <button class="present" id="presentBtn" title="Fullscreen presentation">&#9974; Full-Screen</button>
-        <button class="present exitpresent" id="exitPresentBtn">&#10005; Exit</button>
+        <button class="presentbtn" id="presentBtn" title="Fullscreen presentation">&#9974; Full-Screen</button>
+        <button class="presentbtn exitpresent" id="exitPresentBtn">&#10005; Exit</button>
       </div>
     </div>
   </div>
+  </div>
 
   <div class="status" id="statusbar">
-    <div class="now">
-      <div class="swatch" id="swatch"></div>
-      <div class="concert"><b id="concertName">&mdash;</b>concert pitch</div>
-    </div>
     <div class="phasebox" id="phasebox">
       <div class="phaselabel" id="phaseLabel">Ready</div>
       <div class="phasecount" id="phaseCount">&mdash;</div>
@@ -516,7 +590,8 @@
 
   // ---- board build ----
   var CELL_W = 94, CELL_H = 164, LABEL_W = 150, CLEF_W = 62, SC = 1.5, STAVE_Y = (CELL_H/SC)/2 - 20;
-  var PRES = 1;                                        // present-mode scale (renders the board bigger)
+  var PRES = 1;                                        // present-mode scale (re-renders the board at size)
+  var PRES_MIN = 0.55, PRES_MAX = 2.6;                 // shrink-to-fit floor / enlargement cap
   var CWx=CELL_W, CLEFx=CLEF_W, LWx=LABEL_W, SCx=SC;   // effective, PRES-scaled sizes
   function applyPres(){ CWx=CELL_W*PRES; CLEFx=CLEF_W*PRES; LWx=LABEL_W*PRES; SCx=SC*PRES; }
   var STAVE_OPTS = {space_above_staff_ln:0, space_below_staff_ln:0};
@@ -650,13 +725,23 @@
     renderBoard();
     if(!document.body.classList.contains('present')) return;
     if(!board || !board.offsetHeight) return;
-    var pb=document.querySelector('.playbar'), st=document.getElementById('statusbar');
-    var chrome=(pb?pb.offsetHeight:0) + (st?st.offsetHeight:0) + 46;
-    var avail=window.innerHeight - chrome;
-    var naturalH = board.offsetHeight / PRES;         // height the board would have at PRES=1
-    var s = avail / Math.max(naturalH, 1);
-    s = Math.max(1, Math.min(s, 2.6));                 // never shrink; cap the enlargement
-    if(Math.abs(s - PRES) > 0.03){ PRES = s; renderBoard(); }  // re-render once at the new scale
+    // The board region is a flex child, so its height is fixed by the layout and doesn't
+    // move when we re-render. A couple of parts (column header strip, the reveal-name pad)
+    // are fixed px and don't scale, so refine a few times — the guard stops it converging.
+    var bw=document.getElementById('boardwrap');
+    for(var pass=0; pass<3; pass++){
+      if(!board || !board.offsetHeight) return;
+      var avail=(bw ? bw.clientHeight : 0) - 4;
+      if(avail < 60) return;
+      var naturalH = board.offsetHeight / PRES;       // height the board would have at PRES=1
+      var s = avail / Math.max(naturalH, 1);
+      // Shrink to fit a tall board (many rows / wide ranges) as well as grow a short one.
+      // Floor keeps notes legible; below it the board scrolls and the UI still stays put.
+      s = Math.max(PRES_MIN, Math.min(s, PRES_MAX));
+      if(Math.abs(s - PRES) <= 0.02) break;
+      PRES = s;
+      renderBoard();
+    }
   }
 
   function mkCtx(container, w, h){
@@ -767,12 +852,26 @@
   function fromBag(){
     if (state.bag.length===0) refill();
     if (state.bag.length===0) return shown[0]; // only-focus edge case
-    var c = state.bag.pop(); state.lastCol=c; return c;
+    var c = state.bag.pop();
+    // Safety net: a bag built before a focus was pinned can still hold it, which would
+    // put the focus note two turns in a row. Drop it and take the next one.
+    if (state.focusCol!==null && c===state.focusCol){
+      if (state.bag.length===0) refill();
+      if (state.bag.length) c = state.bag.pop();
+    }
+    state.lastCol=c; return c;
   }
   function nextInOrder(){
     if(!shown.length) return null;
     var c = shown[state.orderIdx % shown.length];
-    state.orderIdx++; state.lastCol=c; return c;
+    state.orderIdx++;
+    // The pinned focus note already gets every other turn, so skip it here.
+    var guard=0;
+    while(state.focusCol!==null && c===state.focusCol && shown.length>1 && guard++<shown.length){
+      c = shown[state.orderIdx % shown.length];
+      state.orderIdx++;
+    }
+    state.lastCol=c; return c;
   }
   function pickNext(){
     if (state.focusCol!==null){
@@ -956,12 +1055,16 @@
     phaseLabel.textContent=label;
     phaseCount.textContent=count;
   }
+  // The concert-pitch readout was removed on purpose: for C instruments (flute, oboe,
+  // trombone, tuba, mallets) the written note IS the concert pitch, so it printed the
+  // answer. Kept as a no-op hook in case a teacher-only readout is added later.
   function showNow(midi){
     var el=document.getElementById('swatch'), nm=document.getElementById('concertName');
-    if(midi==null){ el.style.background='#cdd'; nm.textContent='—'; return; }
+    if(!el && !nm) return;
+    if(midi==null){ if(el) el.style.background='#cdd'; if(nm) nm.textContent='\u2014'; return; }
     var ci = shown.indexOf(midi);
-    el.style.background = COLORVARS[(ci>=0?ci:0)%6];
-    nm.textContent = concertPretty(midi);
+    if(el) el.style.background = COLORVARS[(ci>=0?ci:0)%6];
+    if(nm) nm.textContent = concertPretty(midi);
   }
 
   function phaseList(){
@@ -1037,6 +1140,7 @@
   function toggleFocus(midi){
     state.focusCol = (state.focusCol===midi) ? null : midi;
     state.focusToggle = false;
+    state.bag = [];        // rebuild so the pin takes effect on the very next turn
     refreshFocusUI();
   }
   function refreshFocusUI(){
@@ -1172,8 +1276,17 @@
 
   document.getElementById('soundSeg').addEventListener('click', function(e){
     var b=e.target.closest('button'); if(!b) return;
+    var pick=b.getAttribute('data-s');
+    // A loaded song owns the clock. Choosing a real groove has to release it, or Play
+    // silently keeps using the track (and the tempo stays locked).
+    if(song && song.ready && pick!=='none'){
+      clearSong();
+      closeSongPanel();
+      songSetStatus('Released the loaded song so the <b>'+b.textContent.trim()+
+        '</b> groove can play. Load a song again any time.');
+    }
     [].slice.call(this.children).forEach(function(x){ x.classList.toggle('sel', x===b); });
-    state.sound=b.getAttribute('data-s');
+    state.sound=pick;
   });
 
   var tempo=document.getElementById('tempo');
@@ -1250,7 +1363,7 @@
     if(songCtl) songCtl.hidden=false;
     if(songBadgeGrp) songBadgeGrp.hidden=false;
     if(songBpmEl) songBpmEl.textContent=song.bpm.toFixed(1)+' bpm';
-    if(songBadgeName) songBadgeName.textContent=song.name || 'song';
+    setSongBadgeText(song.name || 'song');
     songLockControls(true);
     var f=songTempoFactor();
     var hb=document.getElementById('songHalf'), db=document.getElementById('songDouble');
@@ -1404,6 +1517,7 @@
           if(tempo) tempo.disabled=true;
           songRefreshUI();
           songMarkSaved(false);
+          openSongPanel();
           songSetStatus('Found <b>'+res.bpm.toFixed(1)+' bpm</b> in &ldquo;'+file.name+'&rdquo;. Press Play &mdash; then if the board is on the wrong beat of the bar, tap <b>Beat 1</b> (or the spacebar) right on the music&rsquo;s downbeat. That moves only the bar, never the tempo. Use &divide;2 or &times;2 if the tempo came out double or half.');
         }).catch(function(err){
           console.warn('analysis failed', err);
@@ -1411,7 +1525,7 @@
         });
       };
       try {
-        var p=audioCtx.decodeAudioData(reader.result, done, function(){
+        var p=audioCtx.decodeAudioData(reader.result.slice(0), done, function(){
           songSetStatus('That file could not be decoded. Try an mp3, m4a, wav, or ogg (not a DRM-protected download).');
         });
         if(p && p.then) p.then(done).catch(function(){
@@ -1474,7 +1588,67 @@
     state.cyclePos=0; state.countIn=0; countInSteps=0;
     state.currentCol=null; state.bag=[]; state.lastCol=null; state.focusToggle=false;
     clearHighlights(); clearNames(); showNow(null);
-    setPhase('countin', 'Ready', '\u2014');
+    setPhase('countin', song && song.ready ? 'Preparing' : 'Ready', song && song.ready ? '\u2026' : '\u2014');
+  }
+
+  // ---- panel toggle, first-run explainer, scrolling badge (doc 1.1, 1.2, 1.7) ----
+  var songPanel=document.getElementById('songPanel'), songToggle=document.getElementById('songToggle');
+  function openSongPanel(){
+    if(!songPanel) return;
+    songPanel.hidden=false;
+    if(songToggle){ songToggle.classList.add('on'); songToggle.innerHTML='\u266b Your Own Music \u25b4'; }
+    if(songJump) songJump.classList.add('on');
+    try{
+      if(!localStorage.getItem('noteBoardSongInfoSeen')){
+        openSongHelp();
+        localStorage.setItem('noteBoardSongInfoSeen','1');
+      }
+    }catch(e){}
+  }
+  function closeSongPanel(){
+    if(!songPanel) return;
+    songPanel.hidden=true;
+    if(songToggle){ songToggle.classList.remove('on'); songToggle.innerHTML='\u266b Your Own Music \u25be'; }
+    if(songJump) songJump.classList.remove('on');
+  }
+  if(songToggle) songToggle.addEventListener('click', function(){
+    if(songPanel && songPanel.hidden) openSongPanel(); else closeSongPanel();
+  });
+  // Second, compact entry point in the top controls row: the instrument picker sits
+  // between there and the play bar, so this saves scrolling past it on load.
+  var songJump=document.getElementById('songJump');
+  if(songJump) songJump.addEventListener('click', function(){
+    openSongPanel();
+    if(songPanel && songPanel.scrollIntoView) songPanel.scrollIntoView({behavior:'smooth', block:'center'});
+  });
+
+  var songHelpModal=document.getElementById('songHelpModal');
+  function openSongHelp(){ if(songHelpModal) songHelpModal.hidden=false; }
+  function closeSongHelp(){ if(songHelpModal) songHelpModal.hidden=true; }
+  ['songHelpBtn'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener('click', openSongHelp);
+  });
+  ['songHelpClose','songHelpGo'].forEach(function(id){
+    var el=document.getElementById(id); if(el) el.addEventListener('click', closeSongHelp);
+  });
+  if(songHelpModal) songHelpModal.addEventListener('click', function(e){ if(e.target===songHelpModal) closeSongHelp(); });
+
+  // Ping-pong scroll only when the title actually overflows its badge
+  function setSongBadgeText(text){
+    var badge=document.querySelector('#songBadgeGrp .songbadge');
+    var t=document.getElementById('songBadgeName');
+    if(!badge || !t) return;
+    t.textContent=text||'';
+    badge.classList.remove('scroll'); t.style.transform=''; t.style.animationDuration='';
+    requestAnimationFrame(function(){
+      var overflow=t.scrollWidth - badge.clientWidth + 26;   // 26 ~= note glyph + padding
+      if(overflow>4){
+        var dist=-(overflow+8);
+        t.style.setProperty('--scrollx', dist+'px');
+        t.style.animationDuration=Math.max(5, Math.min(16, 4 + Math.abs(dist)/40))+'s';
+        badge.classList.add('scroll');
+      }
+    });
   }
 
   var songFileEl=document.getElementById('songFile');
@@ -1651,6 +1825,7 @@
         if(seg) [].slice.call(seg.children).forEach(function(x){ x.classList.toggle('sel', x.getAttribute('data-s')==='none'); });
         songRefreshUI();
         songMarkSaved(true);
+        openSongPanel();
         songSetStatus('Loaded &ldquo;'+rec.name+'&rdquo; at <b>'+rec.bpm.toFixed(1)+' bpm</b> with your saved meter, Beat 1 and nudges. Press Play.');
       });
     }).catch(function(err){
@@ -1716,7 +1891,7 @@
     if(tapBtn){
       tapBtn.textContent = on ? 'Beat 1' : 'Tap';
       tapBtn.title = on ? 'While the song plays, tap on beat 1 (or press the spacebar) to line up the downbeat'
-                        : 'Tap the beat, or press the spacebar';
+                        : 'Tap the beat four times in a row (or press the spacebar) to set the tempo';
     }
   }
 
@@ -1802,7 +1977,7 @@
       startSongAt(t0, 0);
       nextStepTime = t0 + songFirstDownbeat();
       state.countIn = bar; countInSteps = bar*4;
-      setPhase('countin', 'Ready', '\u2014');
+      setPhase('countin', 'Preparing', '\u2026');   // audio is already rolling; don't look idle
     } else if(recentTap){
       // Come in on the next beat aligned to the tap count-off; no click lead-in.
       var beatDur = 60/state.bpm;
