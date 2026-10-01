@@ -180,6 +180,20 @@
   body.present .status{flex:0 0 auto}
   body.present .boardwrap{flex:1 1 auto; min-height:0; overflow:auto}  /* min-height:0 lets it actually shrink */
   body.present .playbar{margin:0 0 8px}
+  /* Short screens (Chromebooks, projectors) need the controls to stay on one line and
+     give their height back to the board. */
+  body.present .playbarGroup{gap:12px}
+  body.present .lab{font-size:9px; letter-spacing:.10em}
+  body.present .seg button{padding:7px 11px; font-size:12px}
+  body.present .seg.twoline button small{font-size:8.5px}
+  body.present .go{padding:9px 16px; font-size:13px}
+  body.present .presentbtn{padding:9px 14px; font-size:13px}
+  body.present .musicbtn{padding:9px 13px; font-size:12px}
+  body.present .tapbtn{padding:6px 11px; font-size:12px}
+  body.present input[type=range]{width:110px}
+  body.present .songbadge{min-height:28px; font-size:11px; padding:5px 10px}
+  body.present .phasebox{padding:8px 18px}
+  body.present .status{padding:8px 14px; gap:14px}
   body.present .playbarGroup{display:flex; flex-wrap:wrap; gap:18px; align-items:flex-end}
   body.present .playbarGroup > .playbar{display:contents}
   body.present .songpanel{display:none !important}
@@ -612,7 +626,15 @@
   var PRES = 1;                                        // present-mode scale (re-renders the board at size)
   var PRES_MIN = 0.55, PRES_MAX = 2.6;                 // shrink-to-fit floor / enlargement cap
   var CWx=CELL_W, CLEFx=CLEF_W, LWx=LABEL_W, SCx=SC;   // effective, PRES-scaled sizes
-  function applyPres(){ CWx=CELL_W*PRES; CLEFx=CLEF_W*PRES; LWx=LABEL_W*PRES; SCx=SC*PRES; }
+  // STRETCH widens columns/labels only (note size is set by PRES), so a board that is
+  // height-limited can still fill a wide screen instead of leaving half of it blank.
+  var STRETCH = 1, STRETCH_MAX = 2.2;
+  function applyPres(){
+    CWx=CELL_W*PRES*STRETCH;
+    CLEFx=CLEF_W*PRES;
+    LWx=LABEL_W*PRES*Math.min(STRETCH, 1.6);
+    SCx=SC*PRES;
+  }
   var STAVE_OPTS = {space_above_staff_ln:0, space_below_staff_ln:0};
   var board = document.getElementById('board');
 
@@ -655,22 +677,26 @@
 
   function rowGeom(row){
     var MID={treble:71, bass:50, alto:60}; // middle-line MIDI per clef
-    var tr=effTr(row), maxDev=0;
+    var tr=effTr(row), up=0, down=0;
     shown.forEach(function(c){
       row.members.forEach(function(m){
         if(!state.selected[m]) return;
         var w=c+tr+INSTR[m].oct;
         var ex=INSTR[m].exp;
         if(!state.concertPitch && ex && (w<ex[0] || w>ex[1])) return;
-        var d=Math.abs(w-MID[row.clef]);
-        if(d>maxDev) maxDev=d;
+        var d=w-MID[row.clef];                 // signed: + is above the middle line
+        if(d>up) up=d;
+        if(-d>down) down=-d;
       });
     });
-    // ~2.9 drawing units per semitone from the middle line, + notehead/margin
-    var half=Math.max(38, maxDev*2.9 + 14);
-    half=Math.min(half, 92);
-    var h=Math.round(2*half*SCx);
-    var staveY=(h/SCx)/2 - 20;
+    // Reserve space above and below independently. A row that sits high (flutes) or low
+    // (tubas) used to reserve the same blank space on its unused side, which made every
+    // row far taller than its music and forced the whole board to shrink.
+    // ~2.9 drawing units per semitone from the middle line, + notehead/margin.
+    var above=Math.min(110, Math.max(38, up*2.9 + 14));
+    var below=Math.min(110, Math.max(38, down*2.9 + 14));
+    var h=Math.round((above+below)*SCx);
+    var staveY=above - 20;
     if(state.revealNames){ var pad=34; h += pad; staveY += pad/SCx; } // clear space up top for the name
     return { h:h, staveY:staveY };
   }
@@ -748,9 +774,11 @@
     // move when we re-render. A couple of parts (column header strip, the reveal-name pad)
     // are fixed px and don't scale, so refine a few times — the guard stops it converging.
     var bw=document.getElementById('boardwrap');
+    if(!bw || bw.clientHeight < 60){ PRES=1; STRETCH=1; renderBoard(); return; }
+    // (a) note size: fit the board's height to the region
     for(var pass=0; pass<3; pass++){
       if(!board || !board.offsetHeight) return;
-      var avail=(bw ? bw.clientHeight : 0) - 4;
+      var avail=bw.clientHeight - 4;
       if(avail < 60) return;
       var naturalH = board.offsetHeight / PRES;       // height the board would have at PRES=1
       var s = avail / Math.max(naturalH, 1);
@@ -761,6 +789,17 @@
       PRES = s;
       renderBoard();
     }
+    // (b) leftover width: widen columns so a height-limited board still fills the screen.
+    //     Note size is unchanged — this spreads the columns rather than shrinking anything.
+    var availW = bw.clientWidth - 6;
+    var cols = shown.length || 1;
+    var natW = (LABEL_W*PRES*1) + (CLEF_W*PRES) + cols*(CELL_W*PRES);   // width at STRETCH=1
+    var st = natW > 0 ? availW/natW : 1;
+    st = Math.max(1, Math.min(st, STRETCH_MAX));
+    if(Math.abs(st - STRETCH) > 0.03){ STRETCH = st; renderBoard(); }
+    // If the board still can't fit, make sure it's the BOTTOM that scrolls out of view,
+    // never the top row — a clipped first line is the one thing we can't recover from.
+    bw.scrollTop = 0;
   }
 
   function mkCtx(container, w, h){
@@ -2039,7 +2078,7 @@
     var wasPresent=document.body.classList.contains('present');
     document.body.classList.remove('present');
     wrapEl.style.zoom=''; wrapEl.style.width='';
-    if(wasPresent && PRES!==1){ PRES=1; renderBoard(); } // back to natural size
+    if(wasPresent && (PRES!==1 || STRETCH!==1)){ PRES=1; STRETCH=1; renderBoard(); } // back to natural size
     if(document.fullscreenElement && document.exitFullscreen){ try{ document.exitFullscreen(); }catch(e){} }
   }
   window.addEventListener('resize', function(){
